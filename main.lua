@@ -93,8 +93,8 @@ call(function ()
                     local r = totable('w', 'h', sfc:getSize())
                     local tex = assert(REN:createTextureFromSurface(sfc))
                     local pt = PP(50, 50)
-                    r.x = math.floor(pt.x - r.w/2)
-                    r.y = math.floor(pt.y - r.h/2)
+                    r.x = pt.x - r.w/2
+                    r.y = pt.y - r.h/2
                     every('sdl.draw', function ()
                         REN:copy(tex, nil, r)
                     end)

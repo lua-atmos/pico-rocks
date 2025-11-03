@@ -1,7 +1,7 @@
 local SHIP_FRAMES   = 4
 local SHIP_ACC_DIV  = 10
 local SHIP_VEL_MAX  = { x=W/2.5, y=H/2.5 }
-local SHOT_DIM      = { w=math.floor(W/50), h=math.floor(H/100) }
+local SHOT_DIM      = { w=W/50, h=H/100 }
 local SHOT_COLOR    = 0xFFFF88
 local METEOR_FRAMES = 6
 local METEOR_AWAIT  = 5000
@@ -36,8 +36,8 @@ function Move_T (rect, vel)
     watching(out_of_screen, function ()
         every('clock', function (_,ms)
             local dt = ms / 1000
-            rect.x = math.floor(rect.x + (vel.x * dt))
-            rect.y = math.floor(rect.y + (vel.y * dt))
+            rect.x = rect.x + (vel.x * dt)
+            rect.y = rect.y + (vel.y * dt)
         end)
     end)
 end
@@ -73,7 +73,7 @@ function Meteor ()
     end, function ()
         every('sdl.draw', function ()
             local crop = { x=dx, y=0, w=w, h=h }
-            REN:copy(tex, crop, rect)
+            REN:copy(tex, crop, sdl.ints(rect))
         end)
     end, function ()
         local v = ((vx^2) + (vy^2)) ^ (1/2)
@@ -97,7 +97,7 @@ function Shot (V, pos, vy)
     end, function ()
         every('sdl.draw', function ()
             REN:setDrawColor(SHOT_COLOR)
-            REN:fillRect(rect)
+            REN:fillRect(sdl.ints(rect))
         end)
     end)
 end
@@ -155,7 +155,7 @@ function Ship (V, shots)
                     end
                 end
                 local crop = { x=0, y=frame*dy, w=rect.w, h=dy }
-                REN:copy(tex, crop, rect)
+                REN:copy(tex, crop, sdl.ints(rect))
             end)
         end, function ()
             every('clock', function (_,ms)
@@ -163,10 +163,10 @@ function Ship (V, shots)
                 vel.x = between(-SHIP_VEL_MAX.x, vel.x+(acc.x*dt), SHIP_VEL_MAX.x)
                 vel.y = between(-SHIP_VEL_MAX.y, vel.y+(acc.y*dt), SHIP_VEL_MAX.y)
 
-                local x = math.floor(rect.x + (vel.x*dt))
-                local y = math.floor(rect.y + (vel.y*dt))
-                rect.x = math.floor(between(V.lim.x1, x, V.lim.x2-w))
-                rect.y = math.floor(between(0, y, H-dy))
+                local x = rect.x + (vel.x*dt)
+                local y = rect.y + (vel.y*dt)
+                rect.x = between(V.lim.x1, x, V.lim.x2-w)
+                rect.y = between(0, y, H-dy)
             end)
         end)
     end)
