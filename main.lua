@@ -10,13 +10,12 @@ PP = sdl.pct_to_pos
 rect_vs_rect = sdl.rect_vs_rect
 
 W, H = 640, 480
-WIN = assert(SDL.createWindow {
+_,REN = sdl.window {
 	title  = "The Battle of Ships",
 	width  = W,
 	height = H,
     flags  = { SDL.flags.OpenGL },
-})
-REN = assert(SDL.createRenderer(WIN,-1))
+}
 
 FNT = assert(TTF.open("tiny.ttf", H/15))
 
@@ -26,7 +25,6 @@ math.randomseed()
 
 local Battle = require "battle" -- actual battle gameplay
 
-sdl.ren = REN
 call(function ()
 
     -- BACKGROUND
