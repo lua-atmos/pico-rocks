@@ -2,7 +2,7 @@ local SHIP_FRAMES   = 4
 local SHIP_ACC_DIV  = 10
 local SHIP_VEL_MAX  = { x=W/2.5, y=H/2.5 }
 local SHOT_DIM      = { w=W/50, h=H/100 }
-local SHOT_COLOR    = 0xFFFF88
+local SHOT_COLOR    = { r=0xFF, g=0xFF, b=0x88 }
 local METEOR_FRAMES = 6
 local METEOR_AWAIT  = 5000
 
@@ -43,21 +43,19 @@ function Move_T (rect, vel)
 end
 
 function Meteor ()
-    local sfc = assert(IMG.load("imgs/meteor.gif"))
-    local tex = assert(REN:createTextureFromSurface(sfc))
-    local ww,h = sfc:getSize()
+    local dim = pico.get.size.image("imgs/meteor.gif")
 
     local y_sig = random_signal()
 
     local vx = (1 + (math.random(0,W/5))) * random_signal()
     local vy = (1 + (math.random(0,H/5))) * y_sig
 
-    local w = ww / METEOR_FRAMES
+    local w = dim.x / METEOR_FRAMES
     local dx = 0
 
     local x = math.random(0,W)
     local y = (y_sig == 1) and 0 or H
-    local rect = { x=x, y=y, w=w, h=h }
+    local rect = { x=x, y=y, w=w, h=dim.y }
     task().tag  = 'M'
     task().rect = rect
 
@@ -68,26 +66,27 @@ function Meteor ()
             await(spawn (Move_T, rect, {x=vx,y=vy}))
         end, function ()
             await('collided')
-            sdl.play "snds/meteor.wav"
+            pico.output.sound "snds/meteor.wav"
         end)
     end, function ()
-        every('sdl.draw', function ()
-            local crop = { x=dx, y=0, w=w, h=h }
-            REN:copy(tex, crop, sdl.ints(rect))
+        every('draw', function ()
+            pico.set.crop { x=dx, y=0, w=w, h=dim.y }
+            pico.output.draw.image(rect, "imgs/meteor.gif")
+            pico.set.crop()
         end)
     end, function ()
         local v = ((vx^2) + (vy^2)) ^ (1/2)
         local x = 0
         every('clock', function (_,ms)
             x = x + ((v * ms) / 1000)
-            dx = (x % ww) - (x % w)
+            dx = (x % dim.x) - (x % w)
         end)
     end)
 end
 
 function Shot (V, pos, vy)
-    sdl.play "snds/shot.wav"
-    local rect = { x=pos.x+V.x*SHOT_DIM.w/2, y=pos.y-SHOT_DIM.h/2, w=SHOT_DIM.w, h=SHOT_DIM.h }
+    pico.output.sound "snds/shot.wav"
+    local rect = { x=pos.x, y=pos.y, w=SHOT_DIM.w, h=SHOT_DIM.h }
     task().tag = V.tag
     task().rect = rect
     par_or(function ()
@@ -95,20 +94,18 @@ function Shot (V, pos, vy)
     end, function ()
         await(spawn (Move_T, rect, {x=(W/3)*V.x, y=vy}))
     end, function ()
-        every('sdl.draw', function ()
-            REN:setDrawColor(SHOT_COLOR)
-            REN:fillRect(sdl.ints(rect))
+        every('draw', function ()
+            pico.set.color.draw(SHOT_COLOR)
+            pico.output.draw.rect(rect)
         end)
     end)
 end
 
 function Ship (V, shots)
-    local sfc = assert(IMG.load(V.img))
-    local tex = assert(REN:createTextureFromSurface(sfc))
-    local w,h = sfc:getSize()
+    local dim = pico.get.size.image(V.img)
     local vel = {x=0,y=0}
-    local dy = h / SHIP_FRAMES
-    local rect = { x=V.pos.x-w/2, y=V.pos.y-dy/2, w=w, h=dy }
+    local dy = dim.y / SHIP_FRAMES
+    local rect = { x=V.pos.x-dim.x/2, y=V.pos.y-dy/2, w=dim.x, h=dy }
     task().tag = V.tag
     task().rect = rect
 
@@ -116,23 +113,23 @@ function Ship (V, shots)
     local key
     spawn(function ()
         par(function ()
-            every(SDL.event.KeyDown, function (evt)
+            every('key.dn', function (evt)
                 if false then
-                elseif evt.name == V.ctl.move.l then
+                elseif evt.key == V.ctl.move.l then
                     acc.x = -W/SHIP_ACC_DIV
-                elseif evt.name == V.ctl.move.r then
+                elseif evt.key == V.ctl.move.r then
                     acc.x =  W/SHIP_ACC_DIV
-                elseif evt.name == V.ctl.move.u then
+                elseif evt.key == V.ctl.move.u then
                     acc.y = -H/SHIP_ACC_DIV
-                elseif evt.name == V.ctl.move.d then
+                elseif evt.key == V.ctl.move.d then
                     acc.y =  H/SHIP_ACC_DIV
-                elseif evt.name == V.ctl.shot then
-                    spawn_in(shots, Shot, V.shot, {x=rect.x+rect.w/2,y=rect.y+rect.h/2}, vel.y)
+                elseif evt.key == V.ctl.shot then
+                    spawn_in(shots, Shot, V.shot, {x=rect.x,y=rect.y}, vel.y)
                 end
-                key = evt.name
+                key = evt.key
             end)
         end, function ()
-            every(SDL.event.KeyUp, function ()
+            every('key.up', function ()
                 key = nil
                 acc = {x=0,y=0}
             end)
@@ -141,7 +138,7 @@ function Ship (V, shots)
 
     watching('collided', function ()
         par(function ()
-            every('sdl.draw', function ()
+            every('draw', function ()
                 local frame = 0; do
                     if false then
                     elseif key == V.ctl.move.l then
@@ -154,8 +151,9 @@ function Ship (V, shots)
                         frame = V.ctl.frame.d
                     end
                 end
-                local crop = { x=0, y=frame*dy, w=rect.w, h=dy }
-                REN:copy(tex, crop, sdl.ints(rect))
+                pico.set.crop { x=0, y=frame*dy, w=rect.w, h=dy }
+                pico.output.draw.image(rect, V.img)
+                pico.set.crop()
             end)
         end, function ()
             every('clock', function (_,ms)
@@ -165,7 +163,7 @@ function Ship (V, shots)
 
                 local x = rect.x + (vel.x*dt)
                 local y = rect.y + (vel.y*dt)
-                rect.x = between(V.lim.x1, x, V.lim.x2-w)
+                rect.x = between(V.lim.x1, x, V.lim.x2-dim.x)
                 rect.y = between(0, y, H-dy)
             end)
         end)
@@ -178,9 +176,10 @@ function Ship (V, shots)
                 d = d + (((10*d)*ms)/1000)
             end)
         end, function ()
-            every('sdl.draw', function ()
-                REN:setDrawColor(0xFF0000)
-                REN:fillRect(sdl.ints{ x=rect.x, y=rect.y, w=d, h=d })
+            local red = { r=0xFF, g=0x00, b=0x00 }
+            every('draw', function ()
+                pico.set.color.draw(red)
+                pico.output.draw.rect { x=rect.x, y=rect.y, w=d, h=d }
             end)
         end)
     end)

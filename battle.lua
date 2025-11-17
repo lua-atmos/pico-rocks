@@ -5,7 +5,7 @@ require "ts" -- task prototypes for Ship, Shot, Meteor
 local V = {
     l = {                           -- left ship
         tag = 'L',
-        pos = PP(10, 50),           -- x,y initial position
+        pos = pico.pos(10, 50),     -- x,y initial position
         ctl = {                     -- key controls
             move  = { l='A', r='D', u='W', d='S'},
             frame = { l=0, r=1, u=2, d=3 },
@@ -17,7 +17,7 @@ local V = {
     },
     r = {
         tag = 'R',
-        pos = PP(90, 50),
+        pos = pico.pos(90, 50),
         ctl = {
             move = { l='Left', r='Right', u='Up', d='Down' },
             frame = { l=1, r=0, u=2, d=3 },
@@ -88,7 +88,7 @@ function Battle ()
                             (t1.tag=='l' and t2.tag=='L') or
                             (t1.tag=='M' and t2.tag=='M')
                         )
-                        if (not no) and rect_vs_rect(t1.rect, t2.rect) then
+                        if (not no) and pico.vs.rect_rect(t1.rect, t2.rect) then
                             emit_in(t1, 'collided') -- will terminate t1
                             emit_in(t2, 'collided') -- will terminate t2
                         end
@@ -98,7 +98,7 @@ function Battle ()
         end)
     end)
 
-    sdl.play "snds/explosion.wav"       -- overrides any active sound
+    pico.output.sound "snds/explosion.wav" -- overrides any active sound
     return (s.tag=='L' and 'R') or 'L'  -- returns winner
 end
 

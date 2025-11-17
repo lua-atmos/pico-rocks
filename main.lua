@@ -1,27 +1,13 @@
-sdl = require "atmos.env.sdl"
-
-SDL = require "SDL"
-IMG = require "SDL.image"
-TTF = require "SDL.ttf"
-
--- SKIP TO "START HERE"
-
-PP = sdl.pct_to_pos
-rect_vs_rect = sdl.rect_vs_rect
+require "atmos.env.pico"
+pico = require "pico"
 
 W, H = 640, 480
-_,REN = sdl.window {
-	title  = "The Battle of Ships",
-	width  = W,
-	height = H,
-    flags  = { SDL.flags.OpenGL },
-}
 
-FNT = assert(TTF.open("tiny.ttf", H/15))
+pico.set.title "The Battle of Ships"
+pico.set.size.window(W, H)
+pico.set.font(nil, H/15)
 
 math.randomseed()
-
--- START HERE
 
 local Battle = require "battle" -- actual battle gameplay
 
@@ -29,22 +15,21 @@ call(function ()
 
     -- BACKGROUND
     spawn(function ()
-        local sfc = assert(IMG.load("imgs/bg.png"))
-        local tex = assert(REN:createTextureFromSurface(sfc))
-        every('sdl.draw', function ()
-            REN:copy(tex)
+        local pt = pico.pos(50, 50)
+        every('draw', function ()
+            pico.output.draw.image(pt, "imgs/bg.png")
         end)
     end)
 
     -- POINTS
     local points = { L=0, R=0 }
     spawn(function ()
-        local l = PP(10, 90)
-        local r = PP(90, 90)
-        every('sdl.draw', function ()
-            REN:setDrawColor(0xFFFFFF)
-            sdl.write(FNT, tostring(points.L), l)
-            sdl.write(FNT, tostring(points.R), r)
+        local l = pico.pos(10, 90)
+        local r = pico.pos(90, 90)
+        every('draw', function ()
+            pico.set.color.draw(0xFF, 0xFF, 0xFF)
+            pico.output.draw.text(l, points.L)
+            pico.output.draw.text(r, points.R)
         end)
     end)
 
@@ -57,14 +42,14 @@ call(function ()
 
         -- Start with 'ENTER':
         --  * spawns a blinking message, and awaits "enter" key
-        watching(SDL.event.KeyDown, 'Return', function ()
+        watching('key.dn', 'Return', function ()
             while true do
                 -- 500ms on
                 watching(clock{ms=500}, function ()
-                    local pt = PP(50, 50)
-                    every('sdl.draw', function ()
-                        REN:setDrawColor(0xFFFFFF)
-                        sdl.write(FNT, "= PRESS ENTER TO START =", pt)
+                    local pt = pico.pos(50, 50)
+                    every('draw', function ()
+                        pico.set.color.draw(0xFF, 0xFF, 0xFF)
+                        pico.output.draw.text(pt, "= PRESS ENTER TO START =")
                     end)
                 end)
                 -- 500ms off
@@ -73,7 +58,7 @@ call(function ()
         end)
 
         -- plays the restart sound
-        sdl.play "snds/start.wav"
+        pico.output.sound "snds/start.wav"
 
         -- spawns the actual battle
         local battle = spawn(Battle)
@@ -84,20 +69,15 @@ call(function ()
         --  * awaits 'P' to toggle battle on
         local _ <close> = spawn(function ()
             while true do
-                await(SDL.event.KeyDown, 'P')
+                await('key.dn', 'P')
                 toggle(battle, false)
                 local _ <close> = spawn(function ()
-                    local sfc = assert(IMG.load("imgs/pause.png"))
-                    local r = totable('w', 'h', sfc:getSize())
-                    local tex = assert(REN:createTextureFromSurface(sfc))
-                    local pt = PP(50, 50)
-                    r.x = pt.x - r.w/2
-                    r.y = pt.y - r.h/2
-                    every('sdl.draw', function ()
-                        REN:copy(tex, nil, r)
+                    local pt = pico.pos(50, 50)
+                    every('draw', function ()
+                        pico.output.draw.image(pt, "imgs/pause.png")
                     end)
                 end)
-                await(SDL.event.KeyDown, 'P')
+                await('key.dn', 'P')
                 toggle(battle, true)
             end
         end)
