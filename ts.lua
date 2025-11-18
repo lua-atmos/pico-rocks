@@ -173,13 +173,12 @@ function Ship (V, shots)
         local d = dy / 2;
         par(function ()
             every('clock', function (_,ms)
-                d = d + (((10*d)*ms)/1000)
+                d = d + (((15*d)*ms)/1000)
             end)
         end, function ()
-            local red = { r=0xFF, g=0x00, b=0x00 }
             every('draw', function ()
-                pico.set.color.draw(red)
-                pico.output.draw.rect { x=rect.x, y=rect.y, w=d, h=d }
+                pico.set.color.draw(pico.color.red)
+                pico.output.draw.oval { x=rect.x, y=rect.y, w=d, h=d }
             end)
         end)
     end)
