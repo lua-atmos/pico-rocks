@@ -1,7 +1,7 @@
 local SHIP_FRAMES   = 4
 local SHIP_ACC_DIV  = 10
 local SHIP_VEL_MAX  = { x=W/2.5, y=H/2.5 }
-local SHOT_DIM      = { w=W/50, h=H/100 }
+local SHOT_DIM      = { x=W/50, y=H/100 }
 local SHOT_COLOR    = { r=0xFF, g=0xFF, b=0x88 }
 local METEOR_FRAMES = 6
 local METEOR_AWAIT  = 5000
@@ -86,7 +86,7 @@ end
 
 function Shot (V, pos, vy)
     pico.output.sound "snds/shot.wav"
-    local rect = { x=pos.x, y=pos.y, w=SHOT_DIM.w, h=SHOT_DIM.h }
+    local rect = { x=pos.x, y=pos.y, w=SHOT_DIM.x, h=SHOT_DIM.y }
     task().tag = V.tag
     task().rect = rect
     par_or(function ()
@@ -105,7 +105,7 @@ function Ship (V, shots)
     local dim = pico.get.size.image(V.img)
     local vel = {x=0,y=0}
     local dy = dim.y / SHIP_FRAMES
-    local rect = { x=V.pos.x-dim.x/2, y=V.pos.y-dy/2, w=dim.x, h=dy }
+    local rect = { x=V.pos.x, y=V.pos.y, w=dim.x, h=dy }
     task().tag = V.tag
     task().rect = rect
 
