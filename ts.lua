@@ -86,7 +86,7 @@ end
 
 function Shot (V, pos, vy)
     pico.output.sound "snds/shot.wav"
-    local rect = { x=pos.x, y=pos.y, w=SHOT_DIM.w, h=SHOT_DIM.h }
+    local rect = { x=pos.x, y=pos.y, w=SHOT_DIM.x, h=SHOT_DIM.y }
     task().tag = V.tag
     task().rect = rect
     par_or(function ()
@@ -173,13 +173,12 @@ function Ship (V, shots)
         local d = dy / 2;
         par(function ()
             every('clock', function (_,ms)
-                d = d + (((10*d)*ms)/1000)
+                d = d + (((15*d)*ms)/1000)
             end)
         end, function ()
-            local red = { r=0xFF, g=0x00, b=0x00 }
             every('draw', function ()
-                pico.set.color.draw(red)
-                pico.output.draw.rect { x=rect.x, y=rect.y, w=d, h=d }
+                pico.set.color.draw(pico.color.red)
+                pico.output.draw.oval { x=rect.x, y=rect.y, w=d, h=d }
             end)
         end)
     end)
