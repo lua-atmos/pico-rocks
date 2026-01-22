@@ -5,25 +5,25 @@ require "ts" -- task prototypes for Ship, Shot, Meteor
 local V = {
     l = {                           -- left ship
         tag = 'L',
-        pos = pico.pos(10, 50),     -- x,y initial position
+        pos = { 'C', x=0.1, y=0.5 },-- x,y initial position
         ctl = {                     -- key controls
             move  = { l='A', r='D', u='W', d='S'},
             frame = { l=0, r=1, u=2, d=3 },
             shot  = 'Left Shift',
         },
-        lim = { x1=0, x2=W/2 },     -- x limits (half of screen)
+        lim = { x1=0, x2=0.5 },     -- x limits (half of screen)
         shot = { tag='l', x=1 },    -- shot tag, x direction
         img = "imgs/ship-L.gif",    -- ship image
     },
     r = {
         tag = 'R',
-        pos = pico.pos(90, 50),
+        pos = { 'C', x=0.9, y=0.5 },
         ctl = {
             move = { l='Left', r='Right', u='Up', d='Down' },
             frame = { l=1, r=0, u=2, d=3 },
             shot = 'Right Shift',
         },
-        lim = { x1=W/2, x2=W },
+        lim = { x1=0.5, x2=0.5 },
         shot = { tag='r', x=-1 },
         img = "imgs/ship-R.gif",    -- ship image
     },

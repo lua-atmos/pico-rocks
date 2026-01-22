@@ -1,11 +1,8 @@
 require "atmos.env.pico"
-pico = require "pico"
-
-W, H = 640, 480
 
 pico.set.title "The Battle of Ships"
-pico.set.size.window(W, H)
-pico.set.font(nil, H/15)
+local dim = {w=640,h=480}
+pico.set.view { grid=false, window=dim, world=dim }
 
 math.randomseed()
 
@@ -15,21 +12,21 @@ call(function ()
 
     -- BACKGROUND
     spawn(function ()
-        local pt = pico.pos(50, 50)
+        local p = { 'C', x=0.5, y=0.5 }
         every('draw', function ()
-            pico.output.draw.image(pt, "imgs/bg.png")
+            pico.output.draw.image("imgs/bg.png", p)
         end)
     end)
 
     -- POINTS
     local points = { L=0, R=0 }
     spawn(function ()
-        local l = pico.pos(10, 90)
-        local r = pico.pos(90, 90)
+        local l = { 'C', x=0.1, y=0.9, h=0.075 }
+        local r = { 'C', x=0.9, y=0.9, h=0.075 }
         every('draw', function ()
-            pico.set.color.draw(0xFF, 0xFF, 0xFF)
-            pico.output.draw.text(l, points.L)
-            pico.output.draw.text(r, points.R)
+            pico.set.color.draw 'white'
+            pico.output.draw.text(points.L, l)
+            pico.output.draw.text(points.R, r)
         end)
     end)
 
@@ -46,10 +43,10 @@ call(function ()
             while true do
                 -- 500ms on
                 watching(clock{ms=500}, function ()
-                    local pt = pico.pos(50, 50)
+                    local pt = { 'C', x=0.5, y=0.5, h=0.075 }
                     every('draw', function ()
-                        pico.set.color.draw(0xFF, 0xFF, 0xFF)
-                        pico.output.draw.text(pt, "= PRESS ENTER TO START =")
+                        pico.set.color.draw 'white'
+                        pico.output.draw.text("= PRESS ENTER TO START =", pt)
                     end)
                 end)
                 -- 500ms off
@@ -72,9 +69,9 @@ call(function ()
                 await('key.dn', 'P')
                 toggle(battle, false)
                 local _ <close> = spawn(function ()
-                    local pt = pico.pos(50, 50)
+                    local pt = { 'C', x=0.5, y=0.5 }
                     every('draw', function ()
-                        pico.output.draw.image(pt, "imgs/pause.png")
+                        pico.output.draw.image("imgs/pause.png", pt)
                     end)
                 end)
                 await('key.dn', 'P')

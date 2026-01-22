@@ -1,7 +1,7 @@
 local SHIP_FRAMES   = 4
 local SHIP_ACC_DIV  = 10
-local SHIP_VEL_MAX  = { x=W/2.5, y=H/2.5 }
-local SHOT_DIM      = { w=W/50, h=H/100 }
+local SHIP_VEL_MAX  = { '%', x=0.4, y=0.4 }
+local SHOT_DIM      = { '%', w=0.02, h=0.01 }
 local SHOT_COLOR    = { r=0xFF, g=0xFF, b=0x88 }
 local METEOR_FRAMES = 6
 local METEOR_AWAIT  = 5000
@@ -43,7 +43,7 @@ function Move_T (rect, vel)
 end
 
 function Meteor ()
-    local dim = pico.get.size.image("imgs/meteor.gif")
+    local dim = pico.get.image("imgs/meteor.gif")
 
     local y_sig = random_signal()
 
@@ -71,7 +71,7 @@ function Meteor ()
     end, function ()
         every('draw', function ()
             pico.set.crop { x=dx, y=0, w=w, h=dim.y }
-            pico.output.draw.image(rect, "imgs/meteor.gif")
+            pico.output.draw.image("imgs/meteor.gif", rect)
             pico.set.crop()
         end)
     end, function ()
@@ -102,9 +102,9 @@ function Shot (V, pos, vy)
 end
 
 function Ship (V, shots)
-    local dim = pico.get.size.image(V.img)
+    local dim = pico.get.image(V.img)
     local vel = {x=0,y=0}
-    local dy = dim.y / SHIP_FRAMES
+    local dy = dim.h / SHIP_FRAMES
     local rect = { x=V.pos.x-dim.x/2, y=V.pos.y-dy/2, w=dim.x, h=dy }
     task().tag = V.tag
     task().rect = rect
@@ -152,7 +152,7 @@ function Ship (V, shots)
                     end
                 end
                 pico.set.crop { x=0, y=frame*dy, w=rect.w, h=dy }
-                pico.output.draw.image(rect, V.img)
+                pico.output.draw.image(V.img, rect)
                 pico.set.crop()
             end)
         end, function ()
