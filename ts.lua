@@ -1,7 +1,6 @@
 local SHIP_FRAMES   = 4
 local SHIP_ACC_DIV  = 10
 local SHIP_VEL_MAX  = { '%', x=0.4, y=0.4 }
-local SHOT_DIM      = { '%', w=0.02, h=0.01 }
 local SHOT_COLOR    = { r=0xFF, g=0xFF, b=0x88 }
 local METEOR_FRAMES = 6
 local METEOR_AWAIT  = 5000
@@ -28,9 +27,9 @@ function Move_T (rect, vel)
     local function out_of_screen ()
         return (
             rect.x < 0  or
-            rect.x > W  or
+            rect.x > 1  or
             rect.y < 0  or
-            rect.y > H
+            rect.y > 1
         )
     end
     watching(out_of_screen, function ()
@@ -47,14 +46,14 @@ function Meteor ()
 
     local y_sig = random_signal()
 
-    local vx = (1 + (math.random(0,W/5))) * random_signal()
-    local vy = (1 + (math.random(0,H/5))) * y_sig
+    local vx = (1 + (math.random(0,0.2))) * random_signal()
+    local vy = (1 + (math.random(0,0.2))) * y_sig
 
     local w = dim.x / METEOR_FRAMES
     local dx = 0
 
-    local x = math.random(0,W)
-    local y = (y_sig == 1) and 0 or H
+    local x = math.random()
+    local y = (y_sig == 1) and 0 or 1
     local rect = { x=x, y=y, w=w, h=dim.y }
     task().tag  = 'M'
     task().rect = rect
@@ -86,13 +85,13 @@ end
 
 function Shot (V, pos, vy)
     --pico.output.sound "snds/shot.wav"
-    local rect = { x=pos.x, y=pos.y, w=SHOT_DIM.x, h=SHOT_DIM.y }
+    local rect = { x=pos.x, y=pos.y, w=0.02, h=0.01 }
     task().tag = V.tag
     task().rect = rect
     par_or(function ()
         await('collided')
     end, function ()
-        await(spawn (Move_T, rect, {x=(W/3)*V.x, y=vy}))
+        await(spawn (Move_T, rect, {x=V.x*0.33, y=vy}))
     end, function ()
         every('draw', function ()
             pico.set.color.draw(SHOT_COLOR)
@@ -104,8 +103,8 @@ end
 function Ship (V, shots)
     local dim = pico.get.image(V.img)
     local vel = {x=0,y=0}
-    local dy = dim.h / SHIP_FRAMES
-    local rect = { 'C', x=0.5, y=0.5, w=dim.w, h=dy }
+    local dh = dim.h / SHIP_FRAMES
+    local rect = { 'C', x=0.5, y=0.5, w=0.075, h=0.075 }
     task().tag = V.tag
     task().rect = rect
 
@@ -116,13 +115,13 @@ function Ship (V, shots)
             every('key.dn', function (evt)
                 if false then
                 elseif evt.key == V.ctl.move.l then
-                    acc.x = -W/SHIP_ACC_DIV
+                    acc.x = -0.1
                 elseif evt.key == V.ctl.move.r then
-                    acc.x =  W/SHIP_ACC_DIV
+                    acc.x =  0.1
                 elseif evt.key == V.ctl.move.u then
-                    acc.y = -H/SHIP_ACC_DIV
+                    acc.y = -0.1
                 elseif evt.key == V.ctl.move.d then
-                    acc.y =  H/SHIP_ACC_DIV
+                    acc.y =  0.1
                 elseif evt.key == V.ctl.shot then
                     spawn_in(shots, Shot, V.shot, {x=rect.x,y=rect.y}, vel.y)
                 end
@@ -151,13 +150,12 @@ function Ship (V, shots)
                         frame = V.ctl.frame.d
                     end
                 end
-                pico.set.crop { x=0, y=frame*dy, w=rect.w, h=dy }
-print(rect[1], rect.x,rect.y)
+                pico.set.crop { x=0, y=frame*dh, w=dim.w, h=dh }
                 pico.output.draw.image(V.img, rect)
                 pico.set.crop()
             end)
         end, function ()
-            local H = pico.get.view().world.w
+            local H = pico.get.view().world.h
             every('clock', function (_,ms)
                 local dt = ms / 1000
                 vel.x = between(-SHIP_VEL_MAX.x, vel.x+(acc.x*dt), SHIP_VEL_MAX.x)
@@ -166,7 +164,7 @@ print(rect[1], rect.x,rect.y)
                 local x = rect.x + (vel.x*dt)
                 local y = rect.y + (vel.y*dt)
                 rect.x = between(V.lim.x1, x, V.lim.x2-dim.w)
-                rect.y = between(0, y, H-dy)
+                rect.y = between(0, y, H-dh)
             end)
         end)
     end)
