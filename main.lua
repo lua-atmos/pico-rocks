@@ -24,7 +24,7 @@ call(function ()
         local l = { 'C', x=0.1, y=0.9, h=0.075 }
         local r = { 'C', x=0.9, y=0.9, h=0.075 }
         every('draw', function ()
-            pico.set.color.draw 'white'
+            pico.set.color.draw "white"
             pico.output.draw.text(points.L, l)
             pico.output.draw.text(points.R, r)
         end)
@@ -45,7 +45,7 @@ call(function ()
                 watching(clock{ms=500}, function ()
                     local pt = { 'C', x=0.5, y=0.5, h=0.075 }
                     every('draw', function ()
-                        pico.set.color.draw 'white'
+                        pico.set.color.draw "white"
                         pico.output.draw.text("= PRESS ENTER TO START =", pt)
                     end)
                 end)
@@ -55,7 +55,7 @@ call(function ()
         end)
 
         -- plays the restart sound
-        pico.output.sound "snds/start.wav"
+        --pico.output.sound "snds/start.wav"
 
         -- spawns the actual battle
         local battle = spawn(Battle)

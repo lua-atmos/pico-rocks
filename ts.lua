@@ -66,7 +66,7 @@ function Meteor ()
             await(spawn (Move_T, rect, {x=vx,y=vy}))
         end, function ()
             await('collided')
-            pico.output.sound "snds/meteor.wav"
+            --pico.output.sound "snds/meteor.wav"
         end)
     end, function ()
         every('draw', function ()
@@ -85,7 +85,7 @@ function Meteor ()
 end
 
 function Shot (V, pos, vy)
-    pico.output.sound "snds/shot.wav"
+    --pico.output.sound "snds/shot.wav"
     local rect = { x=pos.x, y=pos.y, w=SHOT_DIM.x, h=SHOT_DIM.y }
     task().tag = V.tag
     task().rect = rect
@@ -105,7 +105,7 @@ function Ship (V, shots)
     local dim = pico.get.image(V.img)
     local vel = {x=0,y=0}
     local dy = dim.h / SHIP_FRAMES
-    local rect = { x=V.pos.x-dim.x/2, y=V.pos.y-dy/2, w=dim.x, h=dy }
+    local rect = { 'C', x=0.5, y=0.5, w=dim.w, h=dy }
     task().tag = V.tag
     task().rect = rect
 
@@ -152,10 +152,12 @@ function Ship (V, shots)
                     end
                 end
                 pico.set.crop { x=0, y=frame*dy, w=rect.w, h=dy }
+print(rect[1], rect.x,rect.y)
                 pico.output.draw.image(V.img, rect)
                 pico.set.crop()
             end)
         end, function ()
+            local H = pico.get.view().world.w
             every('clock', function (_,ms)
                 local dt = ms / 1000
                 vel.x = between(-SHIP_VEL_MAX.x, vel.x+(acc.x*dt), SHIP_VEL_MAX.x)
@@ -163,7 +165,7 @@ function Ship (V, shots)
 
                 local x = rect.x + (vel.x*dt)
                 local y = rect.y + (vel.y*dt)
-                rect.x = between(V.lim.x1, x, V.lim.x2-dim.x)
+                rect.x = between(V.lim.x1, x, V.lim.x2-dim.w)
                 rect.y = between(0, y, H-dy)
             end)
         end)
@@ -177,7 +179,7 @@ function Ship (V, shots)
             end)
         end, function ()
             every('draw', function ()
-                pico.set.color.draw(pico.color.red)
+                pico.set.color.draw "red"
                 pico.output.draw.oval { x=rect.x, y=rect.y, w=d, h=d }
             end)
         end)

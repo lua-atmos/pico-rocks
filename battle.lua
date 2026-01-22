@@ -55,7 +55,7 @@ function Battle ()
             while true do
                 local dt = math.random(1000, 5000)
                 await(clock{ms=dt})
-                spawn_in(meteors, Meteor)
+                --spawn_in(meteors, Meteor)
             end
         end, function ()
             -- check collisions
@@ -88,17 +88,19 @@ function Battle ()
                             (t1.tag=='l' and t2.tag=='L') or
                             (t1.tag=='M' and t2.tag=='M')
                         )
+--[[
                         if (not no) and pico.vs.rect_rect(t1.rect, t2.rect) then
                             emit_in(t1, 'collided') -- will terminate t1
                             emit_in(t2, 'collided') -- will terminate t2
                         end
+]]
                     end
                 end
             end)
         end)
     end)
 
-    pico.output.sound "snds/explosion.wav" -- overrides any active sound
+    --pico.output.sound "snds/explosion.wav" -- overrides any active sound
     return (s.tag=='L' and 'R') or 'L'  -- returns winner
 end
 
