@@ -65,7 +65,7 @@ function Meteor ()
             await(spawn (Move_T, rect, {x=vx,y=vy}))
         end, function ()
             await('collided')
-            --pico.output.sound "snds/meteor.wav"
+            pico.output.sound "snds/meteor.wav"
         end)
     end, function ()
         every('draw', function ()
@@ -85,7 +85,7 @@ function Meteor ()
 end
 
 function Shot (V, pos, vy)
-    --pico.output.sound "snds/shot.wav"
+    pico.output.sound "snds/shot.wav"
     local rect = { 'C', x=pos.x, y=pos.y, w=0.02, h=0.01 }
     task().tag = V.tag
     task().rect = rect

@@ -98,7 +98,7 @@ function Battle ()
         end)
     end)
 
-    --pico.output.sound "snds/explosion.wav" -- overrides any active sound
+    pico.output.sound "snds/explosion.wav" -- overrides any active sound
     return (s.tag=='L' and 'R') or 'L'  -- returns winner
 end
 

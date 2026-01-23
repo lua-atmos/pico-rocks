@@ -55,7 +55,7 @@ call(function ()
         end)
 
         -- plays the restart sound
-        --pico.output.sound "snds/start.wav"
+        pico.output.sound "snds/start.wav"
 
         -- spawns the actual battle
         local battle = spawn(Battle)
