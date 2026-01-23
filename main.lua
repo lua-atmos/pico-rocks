@@ -43,10 +43,10 @@ call(function ()
             while true do
                 -- 500ms on
                 watching(clock{ms=500}, function ()
-                    local pt = { 'C', x=0.5, y=0.5, h=0.075 }
+                    local p = { 'C', x=0.5, y=0.5, h=0.075 }
                     every('draw', function ()
                         pico.set.color.draw "white"
-                        pico.output.draw.text("= PRESS ENTER TO START =", pt)
+                        pico.output.draw.text("= PRESS ENTER TO START =", p)
                     end)
                 end)
                 -- 500ms off
@@ -69,9 +69,9 @@ call(function ()
                 await('key.dn', 'P')
                 toggle(battle, false)
                 local _ <close> = spawn(function ()
-                    local pt = { 'C', x=0.5, y=0.5 }
+                    local p = { 'C', x=0.5, y=0.5 }
                     every('draw', function ()
-                        pico.output.draw.image("imgs/pause.png", pt)
+                        pico.output.draw.image("imgs/pause.png", p)
                     end)
                 end)
                 await('key.dn', 'P')
