@@ -11,7 +11,7 @@ local V = {
             frame = { l=0, r=1, u=2, d=3 },
             shot  = 'Left Shift',
         },
-        lim = { '%', x1=0.025, x2=0.475 }, -- x limits (half of screen)
+        lim = { '%', x1=0.025, x2=0.45 }, -- x limits (half of screen)
         shot = { tag='l', x=1 },    -- shot tag, x direction
         img = "imgs/ship-L.gif",    -- ship image
     },
@@ -23,7 +23,7 @@ local V = {
             frame = { l=1, r=0, u=2, d=3 },
             shot = 'Right Shift',
         },
-        lim = { '%', x1=0.525, x2=0.975 },
+        lim = { '%', x1=0.55, x2=0.975 },
         shot = { tag='r', x=-1 },
         img = "imgs/ship-R.gif",    -- ship image
     },
