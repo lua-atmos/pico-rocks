@@ -5,25 +5,25 @@ require "ts" -- task prototypes for Ship, Shot, Meteor
 local V = {
     l = {                           -- left ship
         tag = 'L',
-        pos = { 'C', x=0.1, y=0.5 },-- x,y initial position
+        pos = 0.1,                  -- x,y initial position
         ctl = {                     -- key controls
             move  = { l='A', r='D', u='W', d='S'},
             frame = { l=0, r=1, u=2, d=3 },
             shot  = 'Left Shift',
         },
-        lim = { x1=0, x2=0.5 },     -- x limits (half of screen)
+        lim = { '%', x1=0.025, x2=0.475 }, -- x limits (half of screen)
         shot = { tag='l', x=1 },    -- shot tag, x direction
         img = "imgs/ship-L.gif",    -- ship image
     },
     r = {
         tag = 'R',
-        pos = { 'C', x=0.9, y=0.5 },
+        pos = 0.9,
         ctl = {
             move = { l='Left', r='Right', u='Up', d='Down' },
             frame = { l=1, r=0, u=2, d=3 },
             shot = 'Right Shift',
         },
-        lim = { x1=0.5, x2=0.5 },
+        lim = { '%', x1=0.525, x2=0.975 },
         shot = { tag='r', x=-1 },
         img = "imgs/ship-R.gif",    -- ship image
     },
@@ -55,7 +55,7 @@ function Battle ()
             while true do
                 local dt = math.random(1000, 5000)
                 await(clock{ms=dt})
-                --spawn_in(meteors, Meteor)
+                spawn_in(meteors, Meteor)
             end
         end, function ()
             -- check collisions
@@ -88,12 +88,10 @@ function Battle ()
                             (t1.tag=='l' and t2.tag=='L') or
                             (t1.tag=='M' and t2.tag=='M')
                         )
---[[
                         if (not no) and pico.vs.rect_rect(t1.rect, t2.rect) then
                             emit_in(t1, 'collided') -- will terminate t1
                             emit_in(t2, 'collided') -- will terminate t2
                         end
-]]
                     end
                 end
             end)

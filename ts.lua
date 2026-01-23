@@ -46,15 +46,15 @@ function Meteor ()
 
     local y_sig = random_signal()
 
-    local vx = (1 + (math.random(0,0.2))) * random_signal()
-    local vy = (1 + (math.random(0,0.2))) * y_sig
+    local vx = math.random()/5 * random_signal()
+    local vy = math.random()/5 * y_sig
 
-    local w = dim.x / METEOR_FRAMES
+    local w = dim.w / METEOR_FRAMES
     local dx = 0
 
     local x = math.random()
     local y = (y_sig == 1) and 0 or 1
-    local rect = { x=x, y=y, w=w, h=dim.y }
+    local rect = { 'C', x=x, y=y, w=0.075, h=0.075 }
     task().tag  = 'M'
     task().rect = rect
 
@@ -69,7 +69,7 @@ function Meteor ()
         end)
     end, function ()
         every('draw', function ()
-            pico.set.crop { x=dx, y=0, w=w, h=dim.y }
+            pico.set.crop { x=dx, y=0, w=w, h=dim.h }
             pico.output.draw.image("imgs/meteor.gif", rect)
             pico.set.crop()
         end)
@@ -77,15 +77,16 @@ function Meteor ()
         local v = ((vx^2) + (vy^2)) ^ (1/2)
         local x = 0
         every('clock', function (_,ms)
-            x = x + ((v * ms) / 1000)
-            dx = (x % dim.x) - (x % w)
+            x = x + v * ms
+            local xx = x // 1
+            dx = (xx % dim.w) - (xx % w)
         end)
     end)
 end
 
 function Shot (V, pos, vy)
     --pico.output.sound "snds/shot.wav"
-    local rect = { x=pos.x, y=pos.y, w=0.02, h=0.01 }
+    local rect = { 'C', x=pos.x, y=pos.y, w=0.02, h=0.01 }
     task().tag = V.tag
     task().rect = rect
     par_or(function ()
@@ -104,7 +105,7 @@ function Ship (V, shots)
     local dim = pico.get.image(V.img)
     local vel = {x=0,y=0}
     local dh = dim.h / SHIP_FRAMES
-    local rect = { 'C', x=0.5, y=0.5, w=0.075, h=0.075 }
+    local rect = { 'C', x=V.pos, y=0.5, w=0.075, h=0.075 }
     task().tag = V.tag
     task().rect = rect
 
@@ -123,7 +124,7 @@ function Ship (V, shots)
                 elseif evt.key == V.ctl.move.d then
                     acc.y =  0.1
                 elseif evt.key == V.ctl.shot then
-                    spawn_in(shots, Shot, V.shot, {x=rect.x,y=rect.y}, vel.y)
+                    spawn_in(shots, Shot, V.shot, {'%',x=rect.x,y=rect.y}, vel.y)
                 end
                 key = evt.key
             end)
@@ -163,22 +164,22 @@ function Ship (V, shots)
 
                 local x = rect.x + (vel.x*dt)
                 local y = rect.y + (vel.y*dt)
-                rect.x = between(V.lim.x1, x, V.lim.x2-dim.w)
-                rect.y = between(0, y, H-dh)
+                rect.x = between(V.lim.x1, x, V.lim.x2)
+                rect.y = between(0.04, y, 0.96)
             end)
         end)
     end)
 
     watching(clock{ms=100}, function ()
-        local d = dy / 2;
+        local d = 0;
         par(function ()
             every('clock', function (_,ms)
-                d = d + (((15*d)*ms)/1000)
+                d = d + ms/500
             end)
         end, function ()
             every('draw', function ()
                 pico.set.color.draw "red"
-                pico.output.draw.oval { x=rect.x, y=rect.y, w=d, h=d }
+                pico.output.draw.oval { 'C', x=rect.x, y=rect.y, w=d, h=d }
             end)
         end)
     end)
