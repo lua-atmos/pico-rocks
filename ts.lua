@@ -54,7 +54,7 @@ function Meteor ()
 
     local x = math.random()
     local y = (y_sig == 1) and 0 or 1
-    local rect = { 'C', x=x, y=y, w=0.075, h=0.075 }
+    local rect = { '%', x=x, y=y, w=0.075, h=0.075 }
     task().tag  = 'M'
     task().rect = rect
 
@@ -86,7 +86,7 @@ end
 
 function Shot (V, pos, vy)
     pico.output.sound "snds/shot.wav"
-    local rect = { 'C', x=pos.x, y=pos.y, w=0.02, h=0.01 }
+    local rect = { '%', x=pos.x, y=pos.y, w=0.02, h=0.01 }
     task().tag = V.tag
     task().rect = rect
     par_or(function ()
@@ -105,7 +105,7 @@ function Ship (V, shots)
     local dim = pico.get.image(V.img)
     local vel = {x=0,y=0}
     local dh = dim.h / SHIP_FRAMES
-    local rect = { 'C', x=V.pos, y=0.5, w=0.075, h=0.075 }
+    local rect = { '%', x=V.pos, y=0.5, w=0.075, h=0.075 }
     task().tag = V.tag
     task().rect = rect
 
@@ -178,8 +178,8 @@ function Ship (V, shots)
             end)
         end, function ()
             every('draw', function ()
-                pico.set.color.draw "red"
-                pico.output.draw.oval { 'C', x=rect.x, y=rect.y, w=d, h=d }
+                pico.set.color.draw 'red'
+                pico.output.draw.oval { '%', x=rect.x, y=rect.y, w=d, h=d }
             end)
         end)
     end)
