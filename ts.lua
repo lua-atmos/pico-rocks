@@ -41,16 +41,19 @@ function Move_T (rect, vel)
     end)
 end
 
-function Meteor ()
-    local dim = pico.get.image("imgs/meteor.gif")
+local meteors = pico.layer.images (
+    "meteor",
+    "imgs/meteor.gif",
+    {'#', w=METEOR_FRAMES, h=1}
+)
 
+function Meteor ()
     local y_sig = random_signal()
 
     local vx = math.random()/5 * random_signal()
     local vy = math.random()/5 * y_sig
 
-    local w = dim.w / METEOR_FRAMES
-    local dx = 0
+    local frame = 1
 
     local x = math.random()
     local y = (y_sig == 1) and 0 or 1
@@ -69,17 +72,14 @@ function Meteor ()
         end)
     end, function ()
         every('draw', function ()
-            pico.set.crop { x=dx, y=0, w=w, h=dim.h }
-            pico.output.draw.image("imgs/meteor.gif", rect)
-            pico.set.crop()
+            pico.output.draw.layer(meteors[frame], rect)
         end)
     end, function ()
         local v = ((vx^2) + (vy^2)) ^ (1/2)
         local x = 0
         every('clock', function (_,ms)
             x = x + v * ms
-            local xx = x // 1
-            dx = (xx % dim.w) - (xx % w)
+            frame = (x//50 % METEOR_FRAMES) + 1
         end)
     end)
 end
@@ -101,10 +101,22 @@ function Shot (V, pos, vy)
     end)
 end
 
+local ships = {
+    ["imgs/ship-L.gif"] = pico.layer.images (
+        "imgs/ship-L.gif",
+        "imgs/ship-L.gif",
+        {'#', w=1, h=SHIP_FRAMES}
+    ),
+    ["imgs/ship-R.gif"] = pico.layer.images(
+        "imgs/ship-R.gif",
+        "imgs/ship-R.gif",
+        {'#', w=1, h=SHIP_FRAMES}
+    ),
+}
+
 function Ship (V, shots)
-    local dim = pico.get.image(V.img)
+    local frames = ships[V.img]
     local vel = {x=0,y=0}
-    local dh = dim.h / SHIP_FRAMES
     local rect = { '%', x=V.pos, y=0.5, w=0.075, h=0.075 }
     task().tag = V.tag
     task().rect = rect
@@ -151,12 +163,10 @@ function Ship (V, shots)
                         frame = V.ctl.frame.d
                     end
                 end
-                pico.set.crop { x=0, y=frame*dh, w=dim.w, h=dh }
-                pico.output.draw.image(V.img, rect)
-                pico.set.crop()
+                pico.output.draw.layer(frames[frame+1], rect)
             end)
         end, function ()
-            local H = pico.get.view().world.h
+            local H = pico.get.view().dim.h
             every('clock', function (_,ms)
                 local dt = ms / 1000
                 vel.x = between(-SHIP_VEL_MAX.x, vel.x+(acc.x*dt), SHIP_VEL_MAX.x)
