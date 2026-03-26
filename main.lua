@@ -1,13 +1,13 @@
 require "atmos.env.pico"
 
-pico.set.window { title="The Battle of Ships" }
-pico.set.view { dim={'!', w=640, h=480} }
-
 math.randomseed()
 
-local Battle = require "battle" -- actual battle gameplay
-
 loop(function ()
+    pico.set.window { title="The Battle of Ships" }
+    pico.set.dim {'!', w=640, h=480}
+
+    local Battle = require "battle" -- actual battle gameplay
+
     -- BACKGROUND
     spawn(function ()
         local p = { '%', x=0.5, y=0.5 }
