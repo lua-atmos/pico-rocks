@@ -22,7 +22,7 @@ loop(function ()
         local l = { '%', x=0.1, y=0.9, h=0.075 }
         local r = { '%', x=0.9, y=0.9, h=0.075 }
         every('draw', function ()
-            pico.set.color.draw 'white'
+            pico.set.pencil { color='white' }
             pico.output.draw.text(points.L, l)
             pico.output.draw.text(points.R, r)
         end)
@@ -43,7 +43,7 @@ loop(function ()
                 watching(clock{ms=500}, function ()
                     local p = { '%', x=0.5, y=0.5, h=0.075 }
                     every('draw', function ()
-                        pico.set.color.draw 'white'
+                        pico.set.pencil { color='white' }
                         pico.output.draw.text("= PRESS ENTER TO START =", p)
                     end)
                 end)

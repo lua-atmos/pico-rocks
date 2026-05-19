@@ -88,7 +88,7 @@ function Battle ()
                             (t1.tag=='l' and t2.tag=='L') or
                             (t1.tag=='M' and t2.tag=='M')
                         )
-                        if (not no) and pico.vs.rect_rect(t1.rect, t2.rect) then
+                        if (not no) and pico.vs.rect.rect(t1.rect, t2.rect) then
                             emit_in(t1, 'collided') -- will terminate t1
                             emit_in(t2, 'collided') -- will terminate t2
                         end

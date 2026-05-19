@@ -42,6 +42,7 @@ function Move_T (rect, vel)
 end
 
 local meteors = pico.layer.images (
+    nil,
     "meteor",
     "imgs/meteor.gif",
     {'#', w=METEOR_FRAMES, h=1}
@@ -95,7 +96,7 @@ function Shot (V, pos, vy)
         await(spawn (Move_T, rect, {x=V.x*0.33, y=vy}))
     end, function ()
         every('draw', function ()
-            pico.set.color.draw(SHOT_COLOR)
+            pico.set.pencil { color=SHOT_COLOR }
             pico.output.draw.rect(rect)
         end)
     end)
@@ -103,11 +104,13 @@ end
 
 local ships = {
     ["imgs/ship-L.gif"] = pico.layer.images (
+        nil,
         "imgs/ship-L.gif",
         "imgs/ship-L.gif",
         {'#', w=1, h=SHIP_FRAMES}
     ),
     ["imgs/ship-R.gif"] = pico.layer.images(
+        nil,
         "imgs/ship-R.gif",
         "imgs/ship-R.gif",
         {'#', w=1, h=SHIP_FRAMES}
@@ -166,7 +169,6 @@ function Ship (V, shots)
                 pico.output.draw.layer(frames[frame+1], rect)
             end)
         end, function ()
-            local H = pico.get.view().dim.h
             every('clock', function (_,ms)
                 local dt = ms / 1000
                 vel.x = between(-SHIP_VEL_MAX.x, vel.x+(acc.x*dt), SHIP_VEL_MAX.x)
@@ -188,7 +190,7 @@ function Ship (V, shots)
             end)
         end, function ()
             every('draw', function ()
-                pico.set.color.draw 'red'
+                pico.set.pencil { color='red' }
                 pico.output.draw.oval { '%', x=rect.x, y=rect.y, w=d, h=d }
             end)
         end)
