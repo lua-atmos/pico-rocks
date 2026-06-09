@@ -33,7 +33,8 @@ function Move_T (rect, vel)
         )
     end
     watching(out_of_screen, function ()
-        every('clock', function (_,ms)
+        every('clock', function (us)
+            local ms = us / 1000
             local dt = ms / 1000
             rect.x = rect.x + (vel.x * dt)
             rect.y = rect.y + (vel.y * dt)
@@ -64,7 +65,7 @@ function Meteor ()
 
     par_or(function ()
         local dt = math.random(1, METEOR_AWAIT)
-        await(clock{ms=dt})
+        await(dt*_ms_)
         par_or(function ()
             await(spawn (Move_T, rect, {x=vx,y=vy}))
         end, function ()
@@ -78,7 +79,8 @@ function Meteor ()
     end, function ()
         local v = ((vx^2) + (vy^2)) ^ (1/2)
         local x = 0
-        every('clock', function (_,ms)
+        every('clock', function (us)
+            local ms = us / 1000
             x = x + v * ms
             frame = (x//50 % METEOR_FRAMES) + 1
         end)
@@ -169,7 +171,8 @@ function Ship (V, shots)
                 pico.output.draw.layer(frames[frame+1], rect)
             end)
         end, function ()
-            every('clock', function (_,ms)
+            every('clock', function (us)
+                local ms = us / 1000
                 local dt = ms / 1000
                 vel.x = between(-SHIP_VEL_MAX.x, vel.x+(acc.x*dt), SHIP_VEL_MAX.x)
                 vel.y = between(-SHIP_VEL_MAX.y, vel.y+(acc.y*dt), SHIP_VEL_MAX.y)
@@ -182,10 +185,11 @@ function Ship (V, shots)
         end)
     end)
 
-    watching(clock{ms=100}, function ()
+    watching(100*_ms_, function ()
         local d = 0;
         par(function ()
-            every('clock', function (_,ms)
+            every('clock', function (us)
+                local ms = us / 1000
                 d = d + ms/500
             end)
         end, function ()
@@ -195,4 +199,6 @@ function Ship (V, shots)
             end)
         end)
     end)
+
+    return task().tag
 end

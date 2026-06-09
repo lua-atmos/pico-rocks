@@ -49,12 +49,12 @@ function Battle ()
     --  * spawns new meteors periodically
     --  * checks collisions between all objects
 
-    local s = watching(ships, function ()
+    local s = watching({tag='tasks', mode='any', tasks=ships}, function ()
         par(function ()
             -- spawns new meteros periodically
             while true do
                 local dt = math.random(1000, 5000)
-                await(clock{ms=dt})
+                await(dt*_ms_)
                 spawn_in(meteors, Meteor)
             end
         end, function ()
@@ -99,7 +99,7 @@ function Battle ()
     end)
 
     pico.output.sound "snds/explosion.wav" -- overrides any active sound
-    return (s.tag=='L' and 'R') or 'L'  -- returns winner
+    return (s=='L' and 'R') or 'L'         -- returns winner
 end
 
 return Battle

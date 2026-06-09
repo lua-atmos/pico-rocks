@@ -37,10 +37,10 @@ loop(function ()
 
         -- Start with 'ENTER':
         --  * spawns a blinking message, and awaits "enter" key
-        watching('key.dn', 'Return', function ()
+        watching({tag='key.dn', key='Return'}, function ()
             while true do
                 -- 500ms on
-                watching(clock{ms=500}, function ()
+                watching(500*_ms_, function ()
                     local p = { '%', x=0.5, y=0.5, h=0.075 }
                     every('draw', function ()
                         pico.set.pencil { color='white' }
@@ -48,7 +48,7 @@ loop(function ()
                     end)
                 end)
                 -- 500ms off
-                await(clock{ms=500})
+                await(500*_ms_)
             end
         end)
 
@@ -64,7 +64,7 @@ loop(function ()
         --  * awaits 'P' to toggle battle on
         local _ <close> = spawn(function ()
             while true do
-                await('key.dn', 'P')
+                await{tag='key.dn', key='P'}
                 toggle(battle, false)
                 local _ <close> = spawn(function ()
                     local p = { '%', x=0.5, y=0.5 }
@@ -72,7 +72,7 @@ loop(function ()
                         pico.output.draw.image("imgs/pause.png", p)
                     end)
                 end)
-                await('key.dn', 'P')
+                await{tag='key.dn', key='P'}
                 toggle(battle, true)
             end
         end)
@@ -83,6 +83,6 @@ loop(function ()
         --  * awaits 1s before next battle
         local winner = await(battle)
         points[winner] = points[winner] + 1
-        await(clock{s=1})
+        await(1*_s_)
     end
 end)
