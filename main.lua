@@ -9,19 +9,19 @@ loop(function ()
     local Battle = require "battle" -- actual battle gameplay
 
     -- BACKGROUND
-    spawn(function ()
+    do_spawn(function ()
         local p = { '%', x=0.5, y=0.5 }
-        every('draw', function ()
+        loop_on('draw', function ()
             pico.output.draw.image("imgs/bg.png", p)
         end)
     end)
 
     -- POINTS
     local points = { L=0, R=0 }
-    spawn(function ()
+    do_spawn(function ()
         local l = { '%', x=0.1, y=0.9, h=0.075 }
         local r = { '%', x=0.9, y=0.9, h=0.075 }
-        every('draw', function ()
+        loop_on('draw', function ()
             pico.set.pencil { color='white' }
             pico.output.draw.text(points.L, l)
             pico.output.draw.text(points.R, r)
@@ -42,7 +42,7 @@ loop(function ()
                 -- 500ms on
                 watching(500*_ms_, function ()
                     local p = { '%', x=0.5, y=0.5, h=0.075 }
-                    every('draw', function ()
+                    loop_on('draw', function ()
                         pico.set.pencil { color='white' }
                         pico.output.draw.text("= PRESS ENTER TO START =", p)
                     end)
@@ -62,13 +62,13 @@ loop(function ()
         --  * awaits 'P' to toggle battle off
         --  * shows a "paused" image
         --  * awaits 'P' to toggle battle on
-        local _ <close> = spawn(function ()
+        local _ <close> = do_spawn(function ()
             while true do
                 await{tag='key.dn', key='P'}
                 toggle(battle, false)
-                local _ <close> = spawn(function ()
+                local _ <close> = do_spawn(function ()
                     local p = { '%', x=0.5, y=0.5 }
-                    every('draw', function ()
+                    loop_on('draw', function ()
                         pico.output.draw.image("imgs/pause.png", p)
                     end)
                 end)

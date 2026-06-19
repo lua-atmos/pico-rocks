@@ -23,7 +23,7 @@ end
 --  * updates rect every 'step' frame
 --  * terminates when rect leaves the screen
 
-function Move_T (rect, vel)
+Move_T = task(function (rect, vel)
     local function out_of_screen ()
         return (
             rect.x < 0  or
@@ -33,14 +33,14 @@ function Move_T (rect, vel)
         )
     end
     watching(out_of_screen, function ()
-        every('clock', function (us)
+        loop_on('clock', function (us)
             local ms = us / 1000
             local dt = ms / 1000
             rect.x = rect.x + (vel.x * dt)
             rect.y = rect.y + (vel.y * dt)
         end)
     end)
-end
+end)
 
 local meteors = pico.layer.images (
     nil,
@@ -49,7 +49,7 @@ local meteors = pico.layer.images (
     {'#', w=METEOR_FRAMES, h=1}
 )
 
-function Meteor ()
+Meteor = task(function ()
     local y_sig = random_signal()
 
     local vx = math.random()/5 * random_signal()
@@ -60,8 +60,8 @@ function Meteor ()
     local x = math.random()
     local y = (y_sig == 1) and 0 or 1
     local rect = { '%', x=x, y=y, w=0.075, h=0.075 }
-    task().tag  = 'M'
-    task().rect = rect
+    xtask().tag  = 'M'
+    xtask().rect = rect
 
     par_or(function ()
         local dt = math.random(1, METEOR_AWAIT)
@@ -73,36 +73,36 @@ function Meteor ()
             pico.output.sound "snds/meteor.wav"
         end)
     end, function ()
-        every('draw', function ()
+        loop_on('draw', function ()
             pico.output.draw.layer(meteors[frame], rect)
         end)
     end, function ()
         local v = ((vx^2) + (vy^2)) ^ (1/2)
         local x = 0
-        every('clock', function (us)
+        loop_on('clock', function (us)
             local ms = us / 1000
             x = x + v * ms
             frame = (x//50 % METEOR_FRAMES) + 1
         end)
     end)
-end
+end)
 
-function Shot (V, pos, vy)
+Shot = task(function (V, pos, vy)
     pico.output.sound "snds/shot.wav"
     local rect = { '%', x=pos.x, y=pos.y, w=0.02, h=0.01 }
-    task().tag = V.tag
-    task().rect = rect
+    xtask().tag = V.tag
+    xtask().rect = rect
     par_or(function ()
         await('collided')
     end, function ()
         await(spawn (Move_T, rect, {x=V.x*0.33, y=vy}))
     end, function ()
-        every('draw', function ()
+        loop_on('draw', function ()
             pico.set.pencil { color=SHOT_COLOR }
             pico.output.draw.rect(rect)
         end)
     end)
-end
+end)
 
 local ships = {
     ["imgs/ship-L.gif"] = pico.layer.images (
@@ -119,18 +119,18 @@ local ships = {
     ),
 }
 
-function Ship (V, shots)
+Ship = task(function (V, shots)
     local frames = ships[V.img]
     local vel = {x=0,y=0}
     local rect = { '%', x=V.pos, y=0.5, w=0.075, h=0.075 }
-    task().tag = V.tag
-    task().rect = rect
+    xtask().tag = V.tag
+    xtask().rect = rect
 
     local acc = {x=0,y=0}
     local key
-    spawn(function ()
+    do_spawn(function ()
         par(function ()
-            every('key.dn', function (evt)
+            loop_on('key.dn', function (evt)
                 if false then
                 elseif evt.key == V.ctl.move.l then
                     acc.x = -0.1
@@ -146,7 +146,7 @@ function Ship (V, shots)
                 key = evt.key
             end)
         end, function ()
-            every('key.up', function ()
+            loop_on('key.up', function ()
                 key = nil
                 acc = {x=0,y=0}
             end)
@@ -155,7 +155,7 @@ function Ship (V, shots)
 
     watching('collided', function ()
         par(function ()
-            every('draw', function ()
+            loop_on('draw', function ()
                 local frame = 0; do
                     if false then
                     elseif key == V.ctl.move.l then
@@ -171,7 +171,7 @@ function Ship (V, shots)
                 pico.output.draw.layer(frames[frame+1], rect)
             end)
         end, function ()
-            every('clock', function (us)
+            loop_on('clock', function (us)
                 local ms = us / 1000
                 local dt = ms / 1000
                 vel.x = between(-SHIP_VEL_MAX.x, vel.x+(acc.x*dt), SHIP_VEL_MAX.x)
@@ -188,17 +188,17 @@ function Ship (V, shots)
     watching(100*_ms_, function ()
         local d = 0;
         par(function ()
-            every('clock', function (us)
+            loop_on('clock', function (us)
                 local ms = us / 1000
                 d = d + ms/500
             end)
         end, function ()
-            every('draw', function ()
+            loop_on('draw', function ()
                 pico.set.pencil { color='red' }
                 pico.output.draw.oval { '%', x=rect.x, y=rect.y, w=d, h=d }
             end)
         end)
     end)
 
-    return task().tag
-end
+    return xtask().tag
+end)
