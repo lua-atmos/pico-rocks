@@ -63,10 +63,10 @@ Meteor = task(function ()
     xtask().tag  = 'M'
     xtask().rect = rect
 
-    par_or(function ()
+    par_any(function ()
         local dt = math.random(1, METEOR_AWAIT)
         await(dt*_ms_)
-        par_or(function ()
+        par_any(function ()
             await(spawn (Move_T, rect, {x=vx,y=vy}))
         end, function ()
             await('collided')
@@ -92,7 +92,7 @@ Shot = task(function (V, pos, vy)
     local rect = { '%', x=pos.x, y=pos.y, w=0.02, h=0.01 }
     xtask().tag = V.tag
     xtask().rect = rect
-    par_or(function ()
+    par_any(function ()
         await('collided')
     end, function ()
         await(spawn (Move_T, rect, {x=V.x*0.33, y=vy}))
